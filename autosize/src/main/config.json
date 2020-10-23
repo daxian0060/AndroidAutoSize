@@ -1,0 +1,52 @@
+{
+  "app": {
+    "bundleName": "me.jessyan.autosize",
+    "vendor": "jessyan",
+    "version": {
+      "code": 1,
+      "name": "1.0"
+    },
+    "apiVersion": {
+      "compatible": 3,
+      "target": 3
+    }
+  },
+  "deviceConfig": {},
+  "module": {
+    "package": "me.jessyan.autosize",
+    "name": ".AndroidAutoSize",
+    "reqCapabilities": [
+      "video_support"
+    ],
+    "deviceType": [
+      "tv"
+    ],
+    "distro": {
+      "deliveryWithInstall": true,
+      "moduleName": "autosize",
+      "moduleType": "har"
+    },
+    "abilities": [
+      {
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          }
+        ],
+        "orientation": "landscape",
+        "formEnabled": false,
+        "name": "me.jessyan.autosize.MainAbility",
+        "icon": "$media:icon",
+        "description": "$string:mainability_description",
+        "label": "AndroidAutoSize",
+        "type": "page",
+        "launchType": "standard"
+      }
+    ]
+  }
+}
