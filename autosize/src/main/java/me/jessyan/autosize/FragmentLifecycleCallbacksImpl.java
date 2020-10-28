@@ -15,9 +15,12 @@
  */
 package me.jessyan.autosize;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+
+import ohos.aafwk.ability.Lifecycle;
+import ohos.aafwk.ability.LifecycleObserver;
+import ohos.aafwk.content.Intent;
+
+import java.util.Optional;
 
 /**
  * ================================================
@@ -29,7 +32,7 @@ import android.support.v4.app.FragmentManager;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class FragmentLifecycleCallbacksImpl extends FragmentManager.FragmentLifecycleCallbacks {
+public class FragmentLifecycleCallbacksImpl extends LifecycleObserver {
     /**
      * 屏幕适配逻辑策略类
      */
@@ -40,7 +43,17 @@ public class FragmentLifecycleCallbacksImpl extends FragmentManager.FragmentLife
     }
 
     @Override
-    public void onFragmentCreated(FragmentManager fm, Fragment f, Bundle savedInstanceState) {
+    public void onStart(Intent intent) {
+        super.onStart(intent);
+        if (mAutoAdaptStrategy != null) {
+            intent.getOperation().getAbilityName();
+
+            mAutoAdaptStrategy.applyAdapt(f, f.getActivity());
+        }
+    }
+
+    @Override
+    public void  onFragmentCreated(FragmentManager fm, Fragment f, Bundle savedInstanceState) {
         if (mAutoAdaptStrategy != null) {
             mAutoAdaptStrategy.applyAdapt(f, f.getActivity());
         }

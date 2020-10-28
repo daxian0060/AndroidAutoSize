@@ -15,16 +15,17 @@
  */
 package me.jessyan.autosize;
 
-import android.app.Activity;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.util.DisplayMetrics;
-import android.util.SparseArray;
-
 import me.jessyan.autosize.external.ExternalAdaptInfo;
 import me.jessyan.autosize.external.ExternalAdaptManager;
 import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.Preconditions;
+import ohos.aafwk.ability.Ability;
+import ohos.global.configuration.DeviceCapability;
+import ohos.global.resource.Resource;
+import ohos.global.resource.ResourceManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ================================================
@@ -37,7 +38,7 @@ import me.jessyan.autosize.utils.Preconditions;
  * ================================================
  */
 public final class AutoSizeCompat {
-    private static SparseArray<DisplayMetricsInfo> mCache = new SparseArray<>();
+    private static List<DisplayMetricsInfo> mCache = new ArrayList<>();
     private static final int MODE_SHIFT = 30;
     private static final int MODE_MASK  = 0x3 << MODE_SHIFT;
     private static final int MODE_ON_WIDTH  = 1 << MODE_SHIFT;
@@ -52,7 +53,7 @@ public final class AutoSizeCompat {
      *
      * @param resources {@link Resources}
      */
-    public static void autoConvertDensityOfGlobal(Resources resources) {
+    public static void autoConvertDensityOfGlobal(Resource resources) {
         if (AutoSizeConfig.getInstance().isBaseOnWidth()) {
             autoConvertDensityBaseOnWidth(resources, AutoSizeConfig.getInstance().getDesignWidthInDp());
         } else {
@@ -66,7 +67,7 @@ public final class AutoSizeCompat {
      * @param resources   {@link Resources}
      * @param customAdapt {@link Activity} 或 Fragment 需实现 {@link CustomAdapt}
      */
-    public static void autoConvertDensityOfCustomAdapt(Resources resources, CustomAdapt customAdapt) {
+    public static void autoConvertDensityOfCustomAdapt(Resource resources, CustomAdapt customAdapt) {
         Preconditions.checkNotNull(customAdapt, "customAdapt == null");
         float sizeInDp = customAdapt.getSizeInDp();
 
@@ -87,7 +88,7 @@ public final class AutoSizeCompat {
      * @param resources         {@link Resources}
      * @param externalAdaptInfo 三方库的 {@link Activity} 或 Fragment 提供的适配参数, 需要配合 {@link ExternalAdaptManager#addExternalAdaptInfoOfActivity(Class, ExternalAdaptInfo)}
      */
-    public static void autoConvertDensityOfExternalAdaptInfo(Resources resources, ExternalAdaptInfo externalAdaptInfo) {
+    public static void autoConvertDensityOfExternalAdaptInfo(Resource resources, ExternalAdaptInfo externalAdaptInfo) {
         Preconditions.checkNotNull(externalAdaptInfo, "externalAdaptInfo == null");
         float sizeInDp = externalAdaptInfo.getSizeInDp();
 
@@ -108,7 +109,7 @@ public final class AutoSizeCompat {
      * @param resources       {@link Resources}
      * @param designWidthInDp 设计图的总宽度
      */
-    public static void autoConvertDensityBaseOnWidth(Resources resources, float designWidthInDp) {
+    public static void autoConvertDensityBaseOnWidth(Resource resources, float designWidthInDp) {
         autoConvertDensity(resources, designWidthInDp, true);
     }
 
@@ -118,7 +119,7 @@ public final class AutoSizeCompat {
      * @param resources        {@link Resources}
      * @param designHeightInDp 设计图的总高度
      */
-    public static void autoConvertDensityBaseOnHeight(Resources resources, float designHeightInDp) {
+    public static void autoConvertDensityBaseOnHeight(Resource resources, float designHeightInDp) {
         autoConvertDensity(resources, designHeightInDp, false);
     }
 
@@ -134,7 +135,7 @@ public final class AutoSizeCompat {
      * @param isBaseOnWidth 是否按照宽度进行等比例适配, {@code true} 为以宽度进行等比例适配, {@code false} 为以高度进行等比例适配
      * @see <a href="https://mp.weixin.qq.com/s/d9QCoBP6kV9VSWvVldVVwA">今日头条官方适配方案</a>
      */
-    public static void autoConvertDensity(Resources resources, float sizeInDp, boolean isBaseOnWidth) {
+    public static void autoConvertDensity(Resource resources, float sizeInDp, boolean isBaseOnWidth) {
         Preconditions.checkNotNull(resources, "resources == null");
         Preconditions.checkMainThread();
 
@@ -182,7 +183,7 @@ public final class AutoSizeCompat {
                 targetXdpi = AutoSizeConfig.getInstance().getScreenHeight() * 1.0f / subunitsDesignSize;
             }
 
-            mCache.put(key, new DisplayMetricsInfo(targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
+            mCache.add(key, new DisplayMetricsInfo(targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
         } else {
             targetDensity = displayMetricsInfo.getDensity();
             targetDensityDpi = displayMetricsInfo.getDensityDpi();
@@ -201,7 +202,7 @@ public final class AutoSizeCompat {
      *
      * @param resources {@link Resources}
      */
-    public static void cancelAdapt(Resources resources) {
+    public static void cancelAdapt(Resource resources) {
         Preconditions.checkMainThread();
         float initXdpi = AutoSizeConfig.getInstance().getInitXdpi();
         switch (AutoSizeConfig.getInstance().getUnitsManager().getSupportSubunits()) {
@@ -231,8 +232,8 @@ public final class AutoSizeCompat {
      * @param scaledDensity {@link DisplayMetrics#scaledDensity}
      * @param xdpi          {@link DisplayMetrics#xdpi}
      */
-    private static void setDensity(Resources resources, float density, int densityDpi, float scaledDensity, float xdpi) {
-        DisplayMetrics activityDisplayMetrics = resources.getDisplayMetrics();
+    private static void setDensity(ResourceManager resources, float density, int densityDpi, float scaledDensity, float xdpi) {
+        DeviceCapability activityDisplayMetrics = resources.getDeviceCapability();
         setDensity(activityDisplayMetrics, density, densityDpi, scaledDensity, xdpi);
         DisplayMetrics appDisplayMetrics = AutoSizeConfig.getInstance().getApplication().getResources().getDisplayMetrics();
         setDensity(appDisplayMetrics, density, densityDpi, scaledDensity, xdpi);
@@ -258,13 +259,13 @@ public final class AutoSizeCompat {
      * @param scaledDensity  {@link DisplayMetrics#scaledDensity}
      * @param xdpi           {@link DisplayMetrics#xdpi}
      */
-    private static void setDensity(DisplayMetrics displayMetrics, float density, int densityDpi, float scaledDensity, float xdpi) {
+    private static void setDensity(DeviceCapability displayMetrics, int density, int densityDpi, float scaledDensity, float xdpi) {
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP()) {
-            displayMetrics.density = density;
-            displayMetrics.densityDpi = densityDpi;
+            displayMetrics.screenDensity = density;
+//            displayMetrics.densityDpi = densityDpi;
         }
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportSP()) {
-            displayMetrics.scaledDensity = scaledDensity;
+//            displayMetrics.scaledDensity = scaledDensity;
         }
         switch (AutoSizeConfig.getInstance().getUnitsManager().getSupportSubunits()) {
             case NONE:
@@ -289,7 +290,7 @@ public final class AutoSizeCompat {
      * @param screenWidthDp  {@link Configuration#screenWidthDp}
      * @param screenHeightDp {@link Configuration#screenHeightDp}
      */
-    private static void setScreenSizeDp(Resources resources, int screenWidthDp, int screenHeightDp) {
+    private static void setScreenSizeDp(Resource resources, int screenWidthDp, int screenHeightDp) {
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP() && AutoSizeConfig.getInstance().getUnitsManager().isSupportScreenSizeDP()) {
             Configuration activityConfiguration = resources.getConfiguration();
             setScreenSizeDp(activityConfiguration, screenWidthDp, screenHeightDp);
