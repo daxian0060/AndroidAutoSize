@@ -32,22 +32,13 @@ public class ActivityLifecycleCallbacksImpl implements AbilityLifecycleCallbacks
      * 屏幕适配逻辑策略类
      */
     private AutoAdaptStrategy mAutoAdaptStrategy;
-    /**
-     * 让 Fragment 支持自定义适配参数
-     */
-    private ILifecycleObserver mFragmentLifecycleCallbacks;
 
     public ActivityLifecycleCallbacksImpl(AutoAdaptStrategy autoAdaptStrategy) {
-        mFragmentLifecycleCallbacks =  new LifecycleObserver(autoAdaptStrategy);
         mAutoAdaptStrategy = autoAdaptStrategy;
     }
 
     @Override
     public void onAbilityStart(Ability ability) {
-        if (AutoSizeConfig.getInstance().isCustomFragment()) {
-            ((AbilitySlice)ability).getLifecycle().addObserver(mFragmentLifecycleCallbacks);
-        }
-
         //Activity 中的 setContentView(View) 一定要在 super.onCreate(Bundle); 之后执行
         if (mAutoAdaptStrategy != null) {
             mAutoAdaptStrategy.applyAdapt(ability, ability);
@@ -88,6 +79,5 @@ public class ActivityLifecycleCallbacksImpl implements AbilityLifecycleCallbacks
      */
     public void setAutoAdaptStrategy(AutoAdaptStrategy autoAdaptStrategy) {
         mAutoAdaptStrategy = autoAdaptStrategy;
-        mFragmentLifecycleCallbacks.setAutoAdaptStrategy(autoAdaptStrategy);
     }
 }

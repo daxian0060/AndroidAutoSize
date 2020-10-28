@@ -15,19 +15,17 @@
  */
 package me.jessyan.autosize;
 
-import android.app.Activity;
-import android.app.Application;
-
 import java.util.Locale;
 
 import me.jessyan.autosize.external.ExternalAdaptInfo;
 import me.jessyan.autosize.internal.CancelAdapt;
 import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.AutoSizeLog;
+import ohos.aafwk.ability.Ability;
 
 /**
  * ================================================
- * 屏幕适配逻辑策略默认实现类, 可通过 {@link AutoSizeConfig#init(Application, boolean, AutoAdaptStrategy)}
+ * 屏幕适配逻辑策略默认实现类, 可通过 {@link //AutoSizeConfig#init(Application, boolean, AutoAdaptStrategy)}
  * 和 {@link AutoSizeConfig#setAutoAdaptStrategy(AutoAdaptStrategy)} 切换策略
  *
  * @see AutoAdaptStrategy
@@ -38,7 +36,7 @@ import me.jessyan.autosize.utils.AutoSizeLog;
  */
 public class DefaultAutoAdaptStrategy implements AutoAdaptStrategy {
     @Override
-    public void applyAdapt(Object target, Activity activity) {
+    public void applyAdapt(Object target, Ability activity) {
 
         //检查是否开启了外部三方库的适配模式, 只要不主动调用 ExternalAdaptManager 的方法, 下面的代码就不会执行
         if (AutoSizeConfig.getInstance().getExternalAdaptManager().isRun()) {

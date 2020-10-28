@@ -111,7 +111,7 @@ public class ExternalAdaptManager {
      * @param targetClass {@link Ability} class, Fragment class
      * @return 如果返回 {@code null} 则说明该 {@link Ability} 没有提供自定义的适配参数
      */
-    public synchronized ExternalAdaptInfo getExternalAdaptInfoOfAbility(Class<?> targetClass) {
+    public synchronized ExternalAdaptInfo getExternalAdaptInfoOfActivity(Class<?> targetClass) {
         Preconditions.checkNotNull(targetClass, "targetClass == null");
         if (mExternalAdaptInfos == null) {
             return null;
