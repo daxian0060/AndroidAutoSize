@@ -15,16 +15,6 @@
  */
 package me.jessyan.autosize;
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.ComponentCallbacks;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.util.DisplayMetrics;
-
 import java.lang.reflect.Field;
 
 import me.jessyan.autosize.external.ExternalAdaptManager;
@@ -33,8 +23,11 @@ import me.jessyan.autosize.unit.UnitsManager;
 import me.jessyan.autosize.utils.AutoSizeLog;
 import me.jessyan.autosize.utils.Preconditions;
 import me.jessyan.autosize.utils.ScreenUtils;
+import ohos.aafwk.ability.Ability;
 import ohos.aafwk.ability.AbilityPackage;
 import ohos.agp.window.service.DisplayAttributes;
+import ohos.agp.window.service.DisplayManager;
+import ohos.app.Context;
 
 /**
  * ================================================
@@ -53,7 +46,7 @@ public final class AutoSizeConfig {
     public static final boolean DEPENDENCY_SUPPORT;
     private AbilityPackage mApplication;
     /**
-     * 用来管理外部三方库 {@link Activity} 的适配
+     * 用来管理外部三方库 {@link_TODO Activity} 的适配
      */
     private ExternalAdaptManager mExternalAdaptManager = new ExternalAdaptManager();
     /**
@@ -61,27 +54,27 @@ public final class AutoSizeConfig {
      */
     private UnitsManager mUnitsManager = new UnitsManager();
     /**
-     * 最初的 {@link DisplayMetrics#density}
+     * 最初的 {@link_TODO DisplayMetrics#density}
      */
     private float mInitDensity = -1;
     /**
-     * 最初的 {@link DisplayMetrics#densityDpi}
+     * 最初的 {@link_TODO DisplayMetrics#densityDpi}
      */
     private int mInitDensityDpi;
     /**
-     * 最初的 {@link DisplayMetrics#scaledDensity}
+     * 最初的 {@link_TODO DisplayMetrics#scaledDensity}
      */
     private float mInitScaledDensity;
     /**
-     * 最初的 {@link DisplayMetrics#xdpi}
+     * 最初的 {@link_TODO DisplayMetrics#xdpi}
      */
     private float mInitXdpi;
     /**
-     * 最初的 {@link Configuration#screenWidthDp}
+     * 最初的 {@link_TODO Configuration#screenWidthDp}
      */
     private int mInitScreenWidthDp;
     /**
-     * 最初的 {@link Configuration#screenHeightDp}
+     * 最初的 {@link_TODO Configuration#screenHeightDp}
      */
     private int mInitScreenHeightDp;
     /**
@@ -97,37 +90,37 @@ public final class AutoSizeConfig {
      */
     private int mScreenWidth;
     /**
-     * 设备的屏幕总高度, 单位 px, 如果 {@link #isUseDeviceSize} 为 {@code false}, 屏幕总高度会减去状态栏的高度
+     * 设备的屏幕总高度, 单位 px, 如果 {@link_TODO #isUseDeviceSize} 为 {@code false}, 屏幕总高度会减去状态栏的高度
      */
     private int mScreenHeight;
     /**
-     * 状态栏高度, 当 {@link #isUseDeviceSize} 为 {@code false} 时, AndroidAutoSize 会将 {@link #mScreenHeight} 减去状态栏高度
-     * AndroidAutoSize 默认使用 {@link ScreenUtils#getStatusBarHeight()} 方法获取状态栏高度
-     * AndroidAutoSize 使用者可使用 {@link #setStatusBarHeight(int)} 自行设置状态栏高度
+     * 状态栏高度, 当 {@link_TODO #isUseDeviceSize} 为 {@code false} 时, AndroidAutoSize 会将 {@link_TODO #mScreenHeight} 减去状态栏高度
+     * AndroidAutoSize 默认使用 {@link_TODO ScreenUtils#getStatusBarHeight()} 方法获取状态栏高度
+     * AndroidAutoSize 使用者可使用 {@link_TODO #setStatusBarHeight(int)} 自行设置状态栏高度
      */
     private int mStatusBarHeight;
     /**
      * 为了保证在不同高宽比的屏幕上显示效果也能完全一致, 所以本方案适配时是以设计图宽度与设备实际宽度的比例或设计图高度与设备实际高度的比例应用到
      * 每个 View 上 (只能在宽度和高度之中选一个作为基准), 从而使每个 View 的高和宽用同样的比例缩放, 避免在与设计图高宽比不一致的设备上出现适配的 View 高或宽变形的问题
-     * {@link #isBaseOnWidth} 为 {@code true} 时代表以宽度等比例缩放, {@code false} 代表以高度等比例缩放
-     * {@link #isBaseOnWidth} 为全局配置, 默认为 {@code true}, 每个 {@link Activity} 也可以单独选择使用高或者宽做等比例缩放
+     * {@link_TODO #isBaseOnWidth} 为 {@code true} 时代表以宽度等比例缩放, {@code false} 代表以高度等比例缩放
+     * {@link_TODO #isBaseOnWidth} 为全局配置, 默认为 {@code true}, 每个 {@link_TODO Activity} 也可以单独选择使用高或者宽做等比例缩放
      */
     private boolean isBaseOnWidth = true;
     /**
      * 此字段表示是否使用设备的实际尺寸做适配
-     * {@link #isUseDeviceSize} 为 {@code true} 表示屏幕高度 {@link #mScreenHeight} 包含状态栏的高度
-     * {@link #isUseDeviceSize} 为 {@code false} 表示 {@link #mScreenHeight} 会减去状态栏的高度, 默认为 {@code true}
+     * {@link_TODO #isUseDeviceSize} 为 {@code true} 表示屏幕高度 {@link_TODO #mScreenHeight} 包含状态栏的高度
+     * {@link_TODO #isUseDeviceSize} 为 {@code false} 表示 {@link_TODO #mScreenHeight} 会减去状态栏的高度, 默认为 {@code true}
      */
     private boolean isUseDeviceSize = true;
     /**
-     * {@link #mActivityLifecycleCallbacks} 可用来代替在 BaseActivity 中加入适配代码的传统方式
-     * {@link #mActivityLifecycleCallbacks} 这种方案类似于 AOP, 面向接口, 侵入性低, 方便统一管理, 扩展性强, 并且也支持适配三方库的 {@link Activity}
+     * {@link_TODO #mActivityLifecycleCallbacks} 可用来代替在 BaseActivity 中加入适配代码的传统方式
+     * {@link_TODO #mActivityLifecycleCallbacks} 这种方案类似于 AOP, 面向接口, 侵入性低, 方便统一管理, 扩展性强, 并且也支持适配三方库的 {@link_TODO Activity}
      */
     private ActivityLifecycleCallbacksImpl mActivityLifecycleCallbacks;
     /**
      * 框架具有 热插拔 特性, 支持在项目运行中动态停止和重新启动适配功能
      *
-     * @see #stop(Activity)
+     * @see //#stop(Activity)
      * @see #restart()
      */
     private boolean isStop;
@@ -199,9 +192,9 @@ public final class AutoSizeConfig {
 
     /**
      * v0.7.0 以后, 框架会在 APP 启动时自动调用此方法进行初始化, 使用者无需手动初始化, 初始化方法只能调用一次, 否则报错
-     * 此方法默认使用以宽度进行等比例适配, 如想使用以高度进行等比例适配, 请调用 {@link #init(Application, boolean)}
+     * 此方法默认使用以宽度进行等比例适配, 如想使用以高度进行等比例适配, 请调用 {@link_TODO #init(Application, boolean)}
      *
-     * @param application {@link Application}
+     * @param application {@link_TODO Application}
      */
     AutoSizeConfig init(AbilityPackage application) {
         return init(application, true, null);
@@ -209,11 +202,11 @@ public final class AutoSizeConfig {
 
     /**
      * v0.7.0 以后, 框架会在 APP 启动时自动调用此方法进行初始化, 使用者无需手动初始化, 初始化方法只能调用一次, 否则报错
-     * 此方法使用默认的 {@link AutoAdaptStrategy} 策略, 如想使用自定义的 {@link AutoAdaptStrategy} 策略
-     * 请调用 {@link #init(Application, boolean, AutoAdaptStrategy)}
+     * 此方法使用默认的 {@link_TODO AutoAdaptStrategy} 策略, 如想使用自定义的 {@link_TODO AutoAdaptStrategy} 策略
+     * 请调用 {@link_TODO #init(Application, boolean, AutoAdaptStrategy)}
      *
-     * @param application   {@link Application}
-     * @param isBaseOnWidth 详情请查看 {@link #isBaseOnWidth} 的注释
+     * @param application   {@link_TODO Application}
+     * @param isBaseOnWidth 详情请查看 {@link_TODO #isBaseOnWidth} 的注释
      */
     AutoSizeConfig init(AbilityPackage application, boolean isBaseOnWidth) {
         return init(application, isBaseOnWidth, null);
@@ -222,16 +215,17 @@ public final class AutoSizeConfig {
     /**
      * v0.7.0 以后, 框架会在 APP 启动时自动调用此方法进行初始化, 使用者无需手动初始化, 初始化方法只能调用一次, 否则报错
      *
-     * @param application   {@link Application}
-     * @param isBaseOnWidth 详情请查看 {@link #isBaseOnWidth} 的注释
-     * @param strategy      {@link AutoAdaptStrategy}, 传 {@code null} 则使用 {@link DefaultAutoAdaptStrategy}
+     * @param application   {@link_TODO Application}
+     * @param isBaseOnWidth 详情请查看 {@link_TODO #isBaseOnWidth} 的注释
+     * @param strategy      {@link_TODO AutoAdaptStrategy}, 传 {@code null} 则使用 {@link_TODO DefaultAutoAdaptStrategy}
      */
     AutoSizeConfig init(final AbilityPackage application, boolean isBaseOnWidth, AutoAdaptStrategy strategy) {
         Preconditions.checkArgument(mInitDensity == -1, "AutoSizeConfig#init() can only be called once");
         Preconditions.checkNotNull(application, "application == null");
         this.mApplication = application;
         this.isBaseOnWidth = isBaseOnWidth;
-        final DisplayAttributes displayMetrics = Resources.getSystem().getDisplayMetrics();
+        final DisplayAttributes displayMetrics = DisplayManager.getInstance()
+                .getDefaultDisplay(application.getContext()).get().getAttributes();
         final Configuration configuration = Resources.getSystem().getConfiguration();
 
         //设置一个默认值, 避免在低配设备上因为获取 MetaData 过慢, 导致适配时未能正常获取到设计图尺寸
@@ -252,10 +246,10 @@ public final class AutoSizeConfig {
         mStatusBarHeight = ScreenUtils.getStatusBarHeight();
         AutoSizeLog.d("designWidthInDp = " + mDesignWidthInDp + ", designHeightInDp = " + mDesignHeightInDp + ", screenWidth = " + mScreenWidth + ", screenHeight = " + mScreenHeight);
 
-        mInitDensity = displayMetrics.density;
+        mInitDensity = displayMetrics.densityPixels;
         mInitDensityDpi = displayMetrics.densityDpi;
-        mInitScaledDensity = displayMetrics.scaledDensity;
-        mInitXdpi = displayMetrics.xdpi;
+        mInitScaledDensity = displayMetrics.scalDensity;
+        mInitXdpi = displayMetrics.xDpi;
         mInitScreenWidthDp = configuration.screenWidthDp;
         mInitScreenHeightDp = configuration.screenHeightDp;
         application.registerComponentCallbacks(new ComponentCallbacks() {
@@ -281,7 +275,7 @@ public final class AutoSizeConfig {
         });
         AutoSizeLog.d("initDensity = " + mInitDensity + ", initScaledDensity = " + mInitScaledDensity);
         mActivityLifecycleCallbacks = new ActivityLifecycleCallbacksImpl(new WrapperAutoAdaptStrategy(strategy == null ? new DefaultAutoAdaptStrategy() : strategy));
-        application.registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+        application.registerCallbacks(mActivityLifecycleCallbacks, null);
         if ("MiuiResources".equals(application.getResources().getClass().getSimpleName()) || "XResources".equals(application.getResources().getClass().getSimpleName())) {
             isMiui = true;
             try {
@@ -312,7 +306,7 @@ public final class AutoSizeConfig {
      * 停止框架的运行
      * 框架具有 热插拔 特性, 支持在项目运行中动态停止和重新启动适配功能
      */
-    public void stop(AbilityPackage activity) {
+    public void stop(Ability activity) {
         Preconditions.checkNotNull(mActivityLifecycleCallbacks, "Please call the AutoSizeConfig#init() first");
         synchronized (AutoSizeConfig.class) {
             if (!isStop) {
@@ -326,7 +320,7 @@ public final class AutoSizeConfig {
     /**
      * 设置屏幕适配逻辑策略类
      *
-     * @param autoAdaptStrategy {@link AutoAdaptStrategy}
+     * @param autoAdaptStrategy {@link_TODO AutoAdaptStrategy}
      */
     public AutoSizeConfig setAutoAdaptStrategy(AutoAdaptStrategy autoAdaptStrategy) {
         Preconditions.checkNotNull(autoAdaptStrategy, "autoAdaptStrategy == null");
@@ -338,7 +332,7 @@ public final class AutoSizeConfig {
     /**
      * 设置屏幕适配监听器
      *
-     * @param onAdaptListener {@link onAdaptListener}
+     * @param onAdaptListener {@link_TODO onAdaptListener}
      */
     public AutoSizeConfig setOnAdaptListener(onAdaptListener onAdaptListener) {
         Preconditions.checkNotNull(onAdaptListener, "onAdaptListener == null");
@@ -407,72 +401,72 @@ public final class AutoSizeConfig {
     }
 
     /**
-     * {@link ExternalAdaptManager} 用来管理外部三方库 {@link Activity} 的适配
+     * {@link_TODO ExternalAdaptManager} 用来管理外部三方库 {@link_TODO Activity} 的适配
      *
-     * @return {@link #mExternalAdaptManager}
+     * @return {@link_TODO #mExternalAdaptManager}
      */
     public ExternalAdaptManager getExternalAdaptManager() {
         return mExternalAdaptManager;
     }
 
     /**
-     * {@link UnitsManager} 用来管理 AndroidAutoSize 支持的所有单位, AndroidAutoSize 支持五种单位 (dp、sp、pt、in、mm)
+     * {@link_TODO UnitsManager} 用来管理 AndroidAutoSize 支持的所有单位, AndroidAutoSize 支持五种单位 (dp、sp、pt、in、mm)
      *
-     * @return {@link #mUnitsManager}
+     * @return {@link_TODO #mUnitsManager}
      */
     public UnitsManager getUnitsManager() {
         return mUnitsManager;
     }
 
     /**
-     * 返回 {@link #mOnAdaptListener}
+     * 返回 {@link_TODO #mOnAdaptListener}
      *
-     * @return {@link #mOnAdaptListener}
+     * @return {@link_TODO #mOnAdaptListener}
      */
     public onAdaptListener getOnAdaptListener() {
         return mOnAdaptListener;
     }
 
     /**
-     * 返回 {@link #isBaseOnWidth}
+     * 返回 {@link_TODO #isBaseOnWidth}
      *
-     * @return {@link #isBaseOnWidth}
+     * @return {@link_TODO #isBaseOnWidth}
      */
     public boolean isBaseOnWidth() {
         return isBaseOnWidth;
     }
 
     /**
-     * 返回 {@link #isUseDeviceSize}
+     * 返回 {@link_TODO #isUseDeviceSize}
      *
-     * @return {@link #isUseDeviceSize}
+     * @return {@link_TODO #isUseDeviceSize}
      */
     public boolean isUseDeviceSize() {
         return isUseDeviceSize;
     }
 
     /**
-     * 返回 {@link #mScreenWidth}
+     * 返回 {@link_TODO #mScreenWidth}
      *
-     * @return {@link #mScreenWidth}
+     * @return {@link_TODO #mScreenWidth}
      */
     public int getScreenWidth() {
         return mScreenWidth;
     }
 
     /**
-     * 返回 {@link #mScreenHeight}
+     * 返回 {@link_TODO #mScreenHeight}
      *
-     * @return {@link #mScreenHeight}
+     * @return {@link_TODO #mScreenHeight}
      */
     public int getScreenHeight() {
         return isUseDeviceSize() ? mScreenHeight : mScreenHeight - mStatusBarHeight;
     }
 
     /**
-     * 获取 {@link #mDesignWidthInDp}
+     * 获取 {@link_TODO #mDesignWidthInDp}
      *
-     * @return {@link #mDesignWidthInDp}
+     * @return {@link_TODO #mDesignWidthInDp}
      */
     public int getDesignWidthInDp() {
         Preconditions.checkArgument(mDesignWidthInDp > 0, "you must set " + KEY_DESIGN_WIDTH_IN_DP + "  in your AndroidManifest file");
@@ -480,9 +474,9 @@ public final class AutoSizeConfig {
     }
 
     /**
-     * 获取 {@link #mDesignHeightInDp}
+     * 获取 {@link_TODO #mDesignHeightInDp}
      *
-     * @return {@link #mDesignHeightInDp}
+     * @return {@link_TODO #mDesignHeightInDp}
      */
     public int getDesignHeightInDp() {
         Preconditions.checkArgument(mDesignHeightInDp > 0, "you must set " + KEY_DESIGN_HEIGHT_IN_DP + "  in your AndroidManifest file");
@@ -490,54 +484,54 @@ public final class AutoSizeConfig {
     }
 
     /**
-     * 获取 {@link #mInitDensity}
+     * 获取 {@link_TODO #mInitDensity}
      *
-     * @return {@link #mInitDensity}
+     * @return {@link_TODO #mInitDensity}
      */
     public float getInitDensity() {
         return mInitDensity;
     }
 
     /**
-     * 获取 {@link #mInitDensityDpi}
+     * 获取 {@link_TODO #mInitDensityDpi}
      *
-     * @return {@link #mInitDensityDpi}
+     * @return {@link_TODO #mInitDensityDpi}
      */
     public int getInitDensityDpi() {
         return mInitDensityDpi;
     }
 
     /**
-     * 获取 {@link #mInitScaledDensity}
+     * 获取 {@link_TODO #mInitScaledDensity}
      *
-     * @return {@link #mInitScaledDensity}
+     * @return {@link_TODO #mInitScaledDensity}
      */
     public float getInitScaledDensity() {
         return mInitScaledDensity;
     }
 
     /**
-     * 获取 {@link #mInitXdpi}
+     * 获取 {@link_TODO #mInitXdpi}
      *
-     * @return {@link #mInitXdpi}
+     * @return {@link_TODO #mInitXdpi}
      */
     public float getInitXdpi() {
         return mInitXdpi;
     }
 
     /**
-     * 获取 {@link #mInitScreenWidthDp}
+     * 获取 {@link_TODO #mInitScreenWidthDp}
      *
-     * @return {@link #mInitScreenWidthDp}
+     * @return {@link_TODO #mInitScreenWidthDp}
      */
     public int getInitScreenWidthDp() {
         return mInitScreenWidthDp;
     }
 
     /**
-     * 获取 {@link #mInitScreenHeightDp}
+     * 获取 {@link_TODO #mInitScreenHeightDp}
      *
-     * @return {@link #mInitScreenHeightDp}
+     * @return {@link_TODO #mInitScreenHeightDp}
      */
     public int getInitScreenHeightDp() {
         return mInitScreenHeightDp;
@@ -553,18 +547,18 @@ public final class AutoSizeConfig {
     }
 
     /**
-     * 返回 {@link #isMiui}
+     * 返回 {@link_TODO #isMiui}
      *
-     * @return {@link #isMiui}
+     * @return {@link_TODO #isMiui}
      */
     public boolean isMiui() {
         return isMiui;
     }
 
     /**
-     * 返回 {@link #mTmpMetricsField}
+     * 返回 {@link_TODO #mTmpMetricsField}
      *
-     * @return {@link #mTmpMetricsField}
+     * @return {@link_TODO #mTmpMetricsField}
      */
     public Field getTmpMetricsField() {
         return mTmpMetricsField;
@@ -584,7 +578,7 @@ public final class AutoSizeConfig {
      * 是否屏蔽系统字体大小对 AndroidAutoSize 的影响, 如果为 {@code true}, App 内的字体的大小将不会跟随系统设置中字体大小的改变
      * 如果为 {@code false}, 则会跟随系统设置中字体大小的改变, 默认为 {@code false}
      *
-     * @return {@link #isExcludeFontScale}
+     * @return {@link_TODO #isExcludeFontScale}
      */
     public boolean isExcludeFontScale() {
         return isExcludeFontScale;
@@ -688,7 +682,7 @@ public final class AutoSizeConfig {
      *            android:value="640"/>
      * </pre>
      *
-     * @param context {@link Context}
+     * @param context {@link_TODO Context}
      */
     private void getMetaData(final Context context) {
         new Thread(new Runnable() {
