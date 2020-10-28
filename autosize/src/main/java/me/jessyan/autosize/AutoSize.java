@@ -34,6 +34,10 @@ import me.jessyan.autosize.internal.CancelAdapt;
 import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.AutoSizeLog;
 import me.jessyan.autosize.utils.Preconditions;
+import ohos.aafwk.ability.Ability;
+import ohos.agp.window.service.DisplayAttributes;
+import ohos.agp.window.service.DisplayManager;
+import ohos.global.config.ConfigManager;
 
 /**
  * ================================================
@@ -285,22 +289,14 @@ public final class AutoSize {
      * @param scaledDensity {@link DisplayMetrics#scaledDensity}
      * @param xdpi          {@link DisplayMetrics#xdpi}
      */
-    private static void setDensity(Activity activity, float density, int densityDpi, float scaledDensity, float xdpi) {
-        DisplayMetrics activityDisplayMetrics = activity.getResources().getDisplayMetrics();
+    private static void setDensity(Ability activity, float density, int densityDpi, float scaledDensity, float xdpi) {
+        DisplayAttributes activityDisplayMetrics = DisplayManager.getInstance()
+                .getDefaultDisplay(activity.getContext()).get().getAttributes();
         setDensity(activityDisplayMetrics, density, densityDpi, scaledDensity, xdpi);
-        DisplayMetrics appDisplayMetrics = AutoSizeConfig.getInstance().getApplication().getResources().getDisplayMetrics();
+
+        DisplayAttributes appDisplayMetrics = DisplayManager.getInstance()
+                .getDefaultDisplay(AutoSizeConfig.getInstance().getApplication().getContext()).get().getAttributes();
         setDensity(appDisplayMetrics, density, densityDpi, scaledDensity, xdpi);
-
-        //兼容 MIUI
-        DisplayMetrics activityDisplayMetricsOnMIUI = getMetricsOnMiui(activity.getResources());
-        DisplayMetrics appDisplayMetricsOnMIUI = getMetricsOnMiui(AutoSizeConfig.getInstance().getApplication().getResources());
-
-        if (activityDisplayMetricsOnMIUI != null) {
-            setDensity(activityDisplayMetricsOnMIUI, density, densityDpi, scaledDensity, xdpi);
-        }
-        if (appDisplayMetricsOnMIUI != null) {
-            setDensity(appDisplayMetricsOnMIUI, density, densityDpi, scaledDensity, xdpi);
-        }
     }
 
     /**
@@ -312,25 +308,25 @@ public final class AutoSize {
      * @param scaledDensity  {@link DisplayMetrics#scaledDensity}
      * @param xdpi           {@link DisplayMetrics#xdpi}
      */
-    private static void setDensity(DisplayMetrics displayMetrics, float density, int densityDpi, float scaledDensity, float xdpi) {
+    private static void setDensity(DisplayAttributes displayMetrics, float density, int densityDpi, float scaledDensity, float xdpi) {
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP()) {
-            displayMetrics.density = density;
+            displayMetrics.densityPixels = density;
             displayMetrics.densityDpi = densityDpi;
         }
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportSP()) {
-            displayMetrics.scaledDensity = scaledDensity;
+            displayMetrics.scalDensity = scaledDensity;
         }
         switch (AutoSizeConfig.getInstance().getUnitsManager().getSupportSubunits()) {
             case NONE:
                 break;
             case PT:
-                displayMetrics.xdpi = xdpi * 72f;
+                displayMetrics.xDpi = xdpi * 72f;
                 break;
             case IN:
-                displayMetrics.xdpi = xdpi;
+                displayMetrics.xDpi = xdpi;
                 break;
             case MM:
-                displayMetrics.xdpi = xdpi * 25.4f;
+                displayMetrics.xDpi = xdpi * 25.4f;
                 break;
             default:
         }
@@ -343,9 +339,9 @@ public final class AutoSize {
      * @param screenWidthDp  {@link Configuration#screenWidthDp}
      * @param screenHeightDp {@link Configuration#screenHeightDp}
      */
-    private static void setScreenSizeDp(Activity activity, int screenWidthDp, int screenHeightDp) {
+    private static void setScreenSizeDp(Ability activity, int screenWidthDp, int screenHeightDp) {
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP() && AutoSizeConfig.getInstance().getUnitsManager().isSupportScreenSizeDP()) {
-            Configuration activityConfiguration = activity.getResources().getConfiguration();
+            ConfigManager activityConfiguration = activity.getResourceManager().getConfigManager();
             setScreenSizeDp(activityConfiguration, screenWidthDp, screenHeightDp);
 
             Configuration appConfiguration = AutoSizeConfig.getInstance().getApplication().getResources().getConfiguration();
@@ -365,21 +361,4 @@ public final class AutoSize {
         configuration.screenHeightDp = screenHeightDp;
     }
 
-    /**
-     * 解决 MIUI 更改框架导致的 MIUI7 + Android5.1.1 上出现的失效问题 (以及极少数基于这部分 MIUI 去掉 ART 然后置入 XPosed 的手机)
-     * 来源于: https://github.com/Firedamp/Rudeness/blob/master/rudeness-sdk/src/main/java/com/bulong/rudeness/RudenessScreenHelper.java#L61:5
-     *
-     * @param resources {@link Resources}
-     * @return {@link DisplayMetrics}, 可能为 {@code null}
-     */
-    private static DisplayMetrics getMetricsOnMiui(Resources resources) {
-        if (AutoSizeConfig.getInstance().isMiui() && AutoSizeConfig.getInstance().getTmpMetricsField() != null) {
-            try {
-                return (DisplayMetrics) AutoSizeConfig.getInstance().getTmpMetricsField().get(resources);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return null;
-    }
 }

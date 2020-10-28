@@ -259,10 +259,10 @@ public final class AutoSizeCompat {
      * @param scaledDensity  {@link DisplayMetrics#scaledDensity}
      * @param xdpi           {@link DisplayMetrics#xdpi}
      */
-    private static void setDensity(DeviceCapability displayMetrics, int density, int densityDpi, float scaledDensity, float xdpi) {
+    private static void setDensity(DeviceCapability displayMetrics, float density, int densityDpi, float scaledDensity, float xdpi) {
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP()) {
-            displayMetrics.screenDensity = density;
-//            displayMetrics.densityDpi = densityDpi;
+//            displayMetrics.screenDensity = density;
+            displayMetrics.screenDensity = densityDpi;
         }
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportSP()) {
 //            displayMetrics.scaledDensity = scaledDensity;

@@ -33,6 +33,7 @@ import me.jessyan.autosize.unit.UnitsManager;
 import me.jessyan.autosize.utils.AutoSizeLog;
 import me.jessyan.autosize.utils.Preconditions;
 import me.jessyan.autosize.utils.ScreenUtils;
+import ohos.aafwk.ability.AbilityPackage;
 
 /**
  * ================================================
@@ -190,7 +191,7 @@ public final class AutoSizeConfig {
     private AutoSizeConfig() {
     }
 
-    public Application getApplication() {
+    public AbilityPackage getApplication() {
         Preconditions.checkNotNull(mApplication, "Please call the AutoSizeConfig#init() first");
         return mApplication;
     }
