@@ -34,6 +34,7 @@ import me.jessyan.autosize.utils.AutoSizeLog;
 import me.jessyan.autosize.utils.Preconditions;
 import me.jessyan.autosize.utils.ScreenUtils;
 import ohos.aafwk.ability.AbilityPackage;
+import ohos.agp.window.service.DisplayAttributes;
 
 /**
  * ================================================
@@ -50,7 +51,7 @@ public final class AutoSizeConfig {
     private static final String KEY_DESIGN_HEIGHT_IN_DP = "design_height_in_dp";
     public static final boolean DEPENDENCY_ANDROIDX;
     public static final boolean DEPENDENCY_SUPPORT;
-    private Application mApplication;
+    private AbilityPackage mApplication;
     /**
      * 用来管理外部三方库 {@link Activity} 的适配
      */
@@ -202,7 +203,7 @@ public final class AutoSizeConfig {
      *
      * @param application {@link Application}
      */
-    AutoSizeConfig init(Application application) {
+    AutoSizeConfig init(AbilityPackage application) {
         return init(application, true, null);
     }
 
@@ -214,7 +215,7 @@ public final class AutoSizeConfig {
      * @param application   {@link Application}
      * @param isBaseOnWidth 详情请查看 {@link #isBaseOnWidth} 的注释
      */
-    AutoSizeConfig init(Application application, boolean isBaseOnWidth) {
+    AutoSizeConfig init(AbilityPackage application, boolean isBaseOnWidth) {
         return init(application, isBaseOnWidth, null);
     }
 
@@ -225,12 +226,12 @@ public final class AutoSizeConfig {
      * @param isBaseOnWidth 详情请查看 {@link #isBaseOnWidth} 的注释
      * @param strategy      {@link AutoAdaptStrategy}, 传 {@code null} 则使用 {@link DefaultAutoAdaptStrategy}
      */
-    AutoSizeConfig init(final Application application, boolean isBaseOnWidth, AutoAdaptStrategy strategy) {
+    AutoSizeConfig init(final AbilityPackage application, boolean isBaseOnWidth, AutoAdaptStrategy strategy) {
         Preconditions.checkArgument(mInitDensity == -1, "AutoSizeConfig#init() can only be called once");
         Preconditions.checkNotNull(application, "application == null");
         this.mApplication = application;
         this.isBaseOnWidth = isBaseOnWidth;
-        final DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        final DisplayAttributes displayMetrics = Resources.getSystem().getDisplayMetrics();
         final Configuration configuration = Resources.getSystem().getConfiguration();
 
         //设置一个默认值, 避免在低配设备上因为获取 MetaData 过慢, 导致适配时未能正常获取到设计图尺寸
@@ -301,7 +302,7 @@ public final class AutoSizeConfig {
         Preconditions.checkNotNull(mActivityLifecycleCallbacks, "Please call the AutoSizeConfig#init() first");
         synchronized (AutoSizeConfig.class) {
             if (isStop) {
-                mApplication.registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+                mApplication.registerCallbacks(mActivityLifecycleCallbacks, null);
                 isStop = false;
             }
         }
@@ -311,11 +312,11 @@ public final class AutoSizeConfig {
      * 停止框架的运行
      * 框架具有 热插拔 特性, 支持在项目运行中动态停止和重新启动适配功能
      */
-    public void stop(Activity activity) {
+    public void stop(AbilityPackage activity) {
         Preconditions.checkNotNull(mActivityLifecycleCallbacks, "Please call the AutoSizeConfig#init() first");
         synchronized (AutoSizeConfig.class) {
             if (!isStop) {
-                mApplication.unregisterActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+                mApplication.unregisterCallbacks(mActivityLifecycleCallbacks, null);
                 AutoSize.cancelAdapt(activity);
                 isStop = true;
             }

@@ -15,17 +15,8 @@
  */
 package me.jessyan.autosize;
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.net.Uri;
-import android.util.DisplayMetrics;
-import android.util.SparseArray;
-import android.view.View;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import me.jessyan.autosize.external.ExternalAdaptInfo;
@@ -35,6 +26,7 @@ import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.AutoSizeLog;
 import me.jessyan.autosize.utils.Preconditions;
 import ohos.aafwk.ability.Ability;
+import ohos.aafwk.ability.AbilityPackage;
 import ohos.agp.window.service.DisplayAttributes;
 import ohos.agp.window.service.DisplayManager;
 import ohos.global.config.ConfigManager;
@@ -54,7 +46,7 @@ import ohos.global.config.ConfigManager;
  * ================================================
  */
 public final class AutoSize {
-    private static SparseArray<DisplayMetricsInfo> mCache = new SparseArray<>();
+    private static List<DisplayMetricsInfo> mCache = new ArrayList<>();
     private static final int MODE_SHIFT = 30;
     private static final int MODE_MASK  = 0x3 << MODE_SHIFT;
     private static final int MODE_ON_WIDTH  = 1 << MODE_SHIFT;
@@ -81,7 +73,7 @@ public final class AutoSize {
      *
      * @param application {@link Application}
      */
-    public static void checkAndInit(Application application) {
+    public static void checkAndInit(AbilityPackage application) {
         if (!checkInit()) {
             AutoSizeConfig.getInstance()
                     .setLog(true)
@@ -95,7 +87,7 @@ public final class AutoSize {
      *
      * @param activity {@link Activity}
      */
-    public static void autoConvertDensityOfGlobal(Activity activity) {
+    public static void autoConvertDensityOfGlobal(Ability activity) {
         if (AutoSizeConfig.getInstance().isBaseOnWidth()) {
             autoConvertDensityBaseOnWidth(activity, AutoSizeConfig.getInstance().getDesignWidthInDp());
         } else {
@@ -109,7 +101,7 @@ public final class AutoSize {
      * @param activity    {@link Activity}
      * @param customAdapt {@link Activity} 或 Fragment 需实现 {@link CustomAdapt}
      */
-    public static void autoConvertDensityOfCustomAdapt(Activity activity, CustomAdapt customAdapt) {
+    public static void autoConvertDensityOfCustomAdapt(Ability activity, CustomAdapt customAdapt) {
         Preconditions.checkNotNull(customAdapt, "customAdapt == null");
         float sizeInDp = customAdapt.getSizeInDp();
 
@@ -130,7 +122,7 @@ public final class AutoSize {
      * @param activity          {@link Activity}
      * @param externalAdaptInfo 三方库的 {@link Activity} 或 Fragment 提供的适配参数, 需要配合 {@link ExternalAdaptManager#addExternalAdaptInfoOfActivity(Class, ExternalAdaptInfo)}
      */
-    public static void autoConvertDensityOfExternalAdaptInfo(Activity activity, ExternalAdaptInfo externalAdaptInfo) {
+    public static void autoConvertDensityOfExternalAdaptInfo(Ability activity, ExternalAdaptInfo externalAdaptInfo) {
         Preconditions.checkNotNull(externalAdaptInfo, "externalAdaptInfo == null");
         float sizeInDp = externalAdaptInfo.getSizeInDp();
 
@@ -151,7 +143,7 @@ public final class AutoSize {
      * @param activity        {@link Activity}
      * @param designWidthInDp 设计图的总宽度
      */
-    public static void autoConvertDensityBaseOnWidth(Activity activity, float designWidthInDp) {
+    public static void autoConvertDensityBaseOnWidth(Ability activity, float designWidthInDp) {
         autoConvertDensity(activity, designWidthInDp, true);
     }
 
@@ -161,7 +153,7 @@ public final class AutoSize {
      * @param activity         {@link Activity}
      * @param designHeightInDp 设计图的总高度
      */
-    public static void autoConvertDensityBaseOnHeight(Activity activity, float designHeightInDp) {
+    public static void autoConvertDensityBaseOnHeight(Ability activity, float designHeightInDp) {
         autoConvertDensity(activity, designHeightInDp, false);
     }
 
@@ -177,7 +169,7 @@ public final class AutoSize {
      * @param isBaseOnWidth 是否按照宽度进行等比例适配, {@code true} 为以宽度进行等比例适配, {@code false} 为以高度进行等比例适配
      * @see <a href="https://mp.weixin.qq.com/s/d9QCoBP6kV9VSWvVldVVwA">今日头条官方适配方案</a>
      */
-    public static void autoConvertDensity(Activity activity, float sizeInDp, boolean isBaseOnWidth) {
+    public static void autoConvertDensity(Ability activity, float sizeInDp, boolean isBaseOnWidth) {
         Preconditions.checkNotNull(activity, "activity == null");
         Preconditions.checkMainThread();
 
@@ -225,7 +217,7 @@ public final class AutoSize {
                 targetXdpi = AutoSizeConfig.getInstance().getScreenHeight() * 1.0f / subunitsDesignSize;
             }
 
-            mCache.put(key, new DisplayMetricsInfo(targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
+            mCache.set(key, new DisplayMetricsInfo(targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
         } else {
             targetDensity = displayMetricsInfo.getDensity();
             targetDensityDpi = displayMetricsInfo.getDensityDpi();
@@ -249,7 +241,7 @@ public final class AutoSize {
      *
      * @param activity {@link Activity}
      */
-    public static void cancelAdapt(Activity activity) {
+    public static void cancelAdapt(Ability activity) {
         Preconditions.checkMainThread();
         float initXdpi = AutoSizeConfig.getInstance().getInitXdpi();
         switch (AutoSizeConfig.getInstance().getUnitsManager().getSupportSubunits()) {
