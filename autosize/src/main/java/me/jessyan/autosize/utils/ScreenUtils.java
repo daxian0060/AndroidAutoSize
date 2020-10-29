@@ -15,14 +15,13 @@
  */
 package me.jessyan.autosize.utils;
 
-//import android.content.res.Resources;
-//import android.graphics.Point;
-//import android.os.Build;
-//import android.provider.Settings;
-//import android.util.DisplayMetrics;
-//import android.view.Display;
-//import android.view.WindowManager;
+import me.jessyan.autosize.ResourceTable;
 import ohos.app.Context;
+import ohos.global.resource.NotExistException;
+import ohos.global.resource.ResourceManager;
+import ohos.global.resource.WrongTypeException;
+
+import java.io.IOException;
 
 /**
  * ================================================
@@ -70,6 +69,18 @@ public class ScreenUtils {
 //
 //        size[0] = metrics.widthPixels;
 //        size[1] = metrics.heightPixels;
+
+        ResourceManager resManager = context.getResourceManager();
+        try {
+            String result = resManager.getElement(ResourceTable.String_app_name).getString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NotExistException e) {
+            e.printStackTrace();
+        } catch (WrongTypeException e) {
+            e.printStackTrace();
+        }
+
         return size;
     }
 

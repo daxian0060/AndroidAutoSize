@@ -257,9 +257,9 @@ public final class AutoSize {
                 , AutoSizeConfig.getInstance().getInitDensityDpi()
                 , AutoSizeConfig.getInstance().getInitScaledDensity()
                 , initXdpi);
-        setScreenSizeDp(activity
-                , AutoSizeConfig.getInstance().getInitScreenWidthDp()
-                , AutoSizeConfig.getInstance().getInitScreenHeightDp());
+//        setScreenSizeDp(activity
+//                , AutoSizeConfig.getInstance().getInitScreenWidthDp()
+//                , AutoSizeConfig.getInstance().getInitScreenHeightDp());
     }
 
     /**
