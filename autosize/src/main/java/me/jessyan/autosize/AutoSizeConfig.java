@@ -226,7 +226,7 @@ public final class AutoSizeConfig {
         this.isBaseOnWidth = isBaseOnWidth;
         final DisplayAttributes displayMetrics = DisplayManager.getInstance()
                 .getDefaultDisplay(application.getContext()).get().getAttributes();
-        final Configuration configuration = Resources.getSystem().getConfiguration();
+//        final Configuration configuration = Resources.getSystem().getConfiguration();
 
         //设置一个默认值, 避免在低配设备上因为获取 MetaData 过慢, 导致适配时未能正常获取到设计图尺寸
         //建议使用者在低配设备上主动在 Application#onCreate 中调用 setDesignWidthInDp 替代以使用 AndroidManifest 配置设计图尺寸的方式
@@ -239,7 +239,7 @@ public final class AutoSizeConfig {
         }
 
         getMetaData(application);
-        isVertical = application.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+//        isVertical = application.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
         int[] screenSize = ScreenUtils.getScreenSize(application);
         mScreenWidth = screenSize[0];
         mScreenHeight = screenSize[1];
@@ -250,41 +250,32 @@ public final class AutoSizeConfig {
         mInitDensityDpi = displayMetrics.densityDpi;
         mInitScaledDensity = displayMetrics.scalDensity;
         mInitXdpi = displayMetrics.xDpi;
-        mInitScreenWidthDp = configuration.screenWidthDp;
-        mInitScreenHeightDp = configuration.screenHeightDp;
-        application.registerComponentCallbacks(new ComponentCallbacks() {
-            @Override
-            public void onConfigurationChanged(Configuration newConfig) {
-                if (newConfig != null) {
-                    if (newConfig.fontScale > 0) {
-                        mInitScaledDensity =
-                                Resources.getSystem().getDisplayMetrics().scaledDensity;
-                        AutoSizeLog.d("initScaledDensity = " + mInitScaledDensity + " on ConfigurationChanged");
-                    }
-                    isVertical = newConfig.orientation == Configuration.ORIENTATION_PORTRAIT;
-                    int[] screenSize = ScreenUtils.getScreenSize(application);
-                    mScreenWidth = screenSize[0];
-                    mScreenHeight = screenSize[1];
-                }
-            }
-
-            @Override
-            public void onLowMemory() {
-
-            }
-        });
+//        mInitScreenWidthDp = configuration.screenWidthDp;
+//        mInitScreenHeightDp = configuration.screenHeightDp;
+//        application.registerComponentCallbacks(new ComponentCallbacks() {
+//            @Override
+//            public void onConfigurationChanged(Configuration newConfig) {
+//                if (newConfig != null) {
+//                    if (newConfig.fontScale > 0) {
+//                        mInitScaledDensity =
+//                                Resources.getSystem().getDisplayMetrics().scaledDensity;
+//                        AutoSizeLog.d("initScaledDensity = " + mInitScaledDensity + " on ConfigurationChanged");
+//                    }
+//                    isVertical = newConfig.orientation == Configuration.ORIENTATION_PORTRAIT;
+//                    int[] screenSize = ScreenUtils.getScreenSize(application);
+//                    mScreenWidth = screenSize[0];
+//                    mScreenHeight = screenSize[1];
+//                }
+//            }
+//
+//            @Override
+//            public void onLowMemory() {
+//
+//            }
+//        });
         AutoSizeLog.d("initDensity = " + mInitDensity + ", initScaledDensity = " + mInitScaledDensity);
         mActivityLifecycleCallbacks = new ActivityLifecycleCallbacksImpl(new WrapperAutoAdaptStrategy(strategy == null ? new DefaultAutoAdaptStrategy() : strategy));
         application.registerCallbacks(mActivityLifecycleCallbacks, null);
-        if ("MiuiResources".equals(application.getResources().getClass().getSimpleName()) || "XResources".equals(application.getResources().getClass().getSimpleName())) {
-            isMiui = true;
-            try {
-                mTmpMetricsField = Resources.class.getDeclaredField("mTmpMetrics");
-                mTmpMetricsField.setAccessible(true);
-            } catch (Exception e) {
-                mTmpMetricsField = null;
-            }
-        }
         return this;
     }
 

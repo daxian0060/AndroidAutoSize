@@ -16,6 +16,7 @@
 package me.jessyan.autosize.utils;
 
 
+import ohos.aafwk.ability.AbilityPackage;
 import ohos.app.Context;
 
 import java.lang.reflect.InvocationTargetException;
@@ -60,7 +61,7 @@ public class AutoSizeUtils {
      * currentActivityThread
      * @return
      */
-    public static Application getApplicationByReflect() {
+    public static AbilityPackage getApplicationByReflect() {
         try {
             Class<?> activityThread = Class.forName("android.app.ActivityThread");
             Object thread = activityThread.getMethod("currentActivityThread").invoke(null);
@@ -68,7 +69,7 @@ public class AutoSizeUtils {
             if (app == null) {
                 throw new NullPointerException("you should init first");
             }
-            return (Application) app;
+            return (AbilityPackage) app;
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {

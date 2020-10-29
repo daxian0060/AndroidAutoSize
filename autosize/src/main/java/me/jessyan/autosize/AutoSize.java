@@ -18,19 +18,17 @@ package me.jessyan.autosize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import me.jessyan.autosize.external.ExternalAdaptInfo;
-import me.jessyan.autosize.external.ExternalAdaptManager;
-import me.jessyan.autosize.internal.CancelAdapt;
 import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.AutoSizeLog;
 import me.jessyan.autosize.utils.Preconditions;
 import ohos.aafwk.ability.Ability;
 import ohos.aafwk.ability.AbilityPackage;
+import ohos.aafwk.ability.DataAbilityHelper;
+import ohos.aafwk.ability.DataAbilityRemoteException;
 import ohos.agp.window.service.DisplayAttributes;
 import ohos.agp.window.service.DisplayManager;
 import ohos.app.Context;
-import ohos.global.config.ConfigManager;
 import ohos.utils.net.Uri;
 
 /**
@@ -230,7 +228,7 @@ public final class AutoSize {
         }
 
         setDensity(activity, targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi);
-        setScreenSizeDp(activity, targetScreenWidthDp, targetScreenHeightDp);
+//        setScreenSizeDp(activity, targetScreenWidthDp, targetScreenHeightDp);
 
         AutoSizeLog.d(String.format(Locale.ENGLISH, "The %s has been adapted! \n%s Info: isBaseOnWidth = %s, %s = %f, %s = %f, targetDensity = %f, targetScaledDensity = %f, targetDensityDpi = %d, targetXdpi = %f, targetScreenWidthDp = %d, targetScreenHeightDp = %d"
                 , activity.getClass().getName(), activity.getClass().getSimpleName(), isBaseOnWidth, isBaseOnWidth ? "designWidthInDp"
@@ -271,7 +269,12 @@ public final class AutoSize {
      * @param context {@link_TODO Context}
      */
     public static void initCompatMultiProcess(Context context) {
-        context.getContentResolver().query(Uri.parse("content://" + context.getPackageName() + ".autosize-init-provider"), null, null, null, null);
+        DataAbilityHelper helper = DataAbilityHelper.creator(context);
+        try {
+            helper.query(Uri.parse("dataability://localhost/.autosize-init-provider"), null, null);
+        } catch (DataAbilityRemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -333,15 +336,15 @@ public final class AutoSize {
      * @param screenWidthDp  {@link_TODO Configuration#screenWidthDp}
      * @param screenHeightDp {@link_TODO Configuration#screenHeightDp}
      */
-    private static void setScreenSizeDp(Ability activity, int screenWidthDp, int screenHeightDp) {
-        if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP() && AutoSizeConfig.getInstance().getUnitsManager().isSupportScreenSizeDP()) {
-            ConfigManager activityConfiguration = activity.getResourceManager().getConfigManager();
-            setScreenSizeDp(activityConfiguration, screenWidthDp, screenHeightDp);
-
-            Configuration appConfiguration = AutoSizeConfig.getInstance().getApplication().getResources().getConfiguration();
-            setScreenSizeDp(appConfiguration, screenWidthDp, screenHeightDp);
-        }
-    }
+//    private static void setScreenSizeDp(Ability activity, int screenWidthDp, int screenHeightDp) {
+//        if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP() && AutoSizeConfig.getInstance().getUnitsManager().isSupportScreenSizeDP()) {
+//            ConfigManager activityConfiguration = activity.getResourceManager().getConfigManager();
+//            setScreenSizeDp(activityConfiguration, screenWidthDp, screenHeightDp);
+//
+//            Configuration appConfiguration = AutoSizeConfig.getInstance().getApplication().getResources().getConfiguration();
+//            setScreenSizeDp(appConfiguration, screenWidthDp, screenHeightDp);
+//        }
+//    }
 
     /**
      * Configuration赋值
@@ -350,9 +353,9 @@ public final class AutoSize {
      * @param screenWidthDp  {@link_TODO Configuration#screenWidthDp}
      * @param screenHeightDp {@link_TODO Configuration#screenHeightDp}
      */
-    private static void setScreenSizeDp(Configuration configuration, int screenWidthDp, int screenHeightDp) {
-        configuration.screenWidthDp = screenWidthDp;
-        configuration.screenHeightDp = screenHeightDp;
-    }
+//    private static void setScreenSizeDp(Configuration configuration, int screenWidthDp, int screenHeightDp) {
+//        configuration.screenWidthDp = screenWidthDp;
+//        configuration.screenHeightDp = screenHeightDp;
+//    }
 
 }

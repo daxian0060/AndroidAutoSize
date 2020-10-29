@@ -15,59 +15,32 @@
  */
 package me.jessyan.autosize;
 
-import android.content.Context;
-import android.app.Application;
-import android.content.ContentProvider;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-
 import me.jessyan.autosize.utils.AutoSizeUtils;
+import ohos.aafwk.ability.Ability;
+import ohos.aafwk.ability.AbilityPackage;
+import ohos.aafwk.content.Intent;
+import ohos.app.Context;
 
 /**
  * ================================================
- * 通过声明 {@link ContentProvider} 自动完成初始化
+ * 通过声明 {@link_TODO ContentProvider} 自动完成初始化
  * Created by JessYan on 2018/8/19 11:55
  * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class InitProvider extends ContentProvider {
+public class InitProvider extends Ability {
+
     @Override
-    public boolean onCreate() {
+    protected void onStart(Intent intent) {
+        super.onStart(intent);
         Context application = getContext().getApplicationContext();
         if (application == null) {
             application = AutoSizeUtils.getApplicationByReflect();
         }
         AutoSizeConfig.getInstance()
                 .setLog(true)
-                .init((Application) application)
+                .init((AbilityPackage) application)
                 .setUseDeviceSize(false);
-        return true;
-    }
-
-    @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
-    }
-
-    @Override
-    public String getType(Uri uri) {
-        return null;
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        return null;
-    }
-
-    @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
-    }
-
-    @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
     }
 }
