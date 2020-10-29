@@ -45,8 +45,17 @@
         "description": "$string:mainability_description",
         "label": "demo",
         "type": "page",
-        "launchType": "standard"
+        "launchType": "standard",
+        "reqPermissions": [
+          {
+            "name": "me.jessyan.autosize.autosize-init-provider"
+          }
+        ]
       }
     ]
-  }
+  },
+  "defPermissions": [{
+    "name": "me.jessyan.autosize.autosize-init-provider",
+    "grantMode": "system_grant"
+  }]
 }
