@@ -40,7 +40,7 @@
         ],
         "orientation": "landscape",
         "formEnabled": false,
-        "name": "me.jessyan.autosize.demo.MainAbility",
+        "name": "me.jessyan.autosize.demo.MainActivity",
         "icon": "$media:icon",
         "description": "$string:mainability_description",
         "label": "demo",

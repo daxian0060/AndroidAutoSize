@@ -20,6 +20,9 @@ import ohos.aafwk.ability.Ability;
 import ohos.aafwk.ability.AbilityPackage;
 import ohos.aafwk.content.Intent;
 import ohos.app.Context;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogConstString;
+import ohos.hiviewdfx.HiLogLabel;
 
 /**
  * ================================================
@@ -31,13 +34,16 @@ import ohos.app.Context;
  */
 public class InitProvider extends Ability {
 
+    static HiLogLabel label = new HiLogLabel(HiLog.LOG_APP, 0x0, "MYLOG");
+
     @Override
     protected void onStart(Intent intent) {
+        HiLog.info(label, "InitProvider.onStart()");
         super.onStart(intent);
         Context application = getContext().getApplicationContext();
-        if (application == null) {
-            application = AutoSizeUtils.getApplicationByReflect();
-        }
+//        if (application == null) {
+//            application = AutoSizeUtils.getApplicationByReflect();
+//        }
         AutoSizeConfig.getInstance()
                 .setLog(true)
                 .init((AbilityPackage) application)

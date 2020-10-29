@@ -25,28 +25,6 @@
       "deliveryWithInstall": true,
       "moduleName": "autosize",
       "moduleType": "har"
-    },
-    "abilities": [
-      {
-        "skills": [
-          {
-            "entities": [
-              "entity.system.home"
-            ],
-            "actions": [
-              "action.system.home"
-            ]
-          }
-        ],
-        "orientation": "landscape",
-        "formEnabled": false,
-        "name": "me.jessyan.autosize.MainAbility",
-        "icon": "$media:icon",
-        "description": "$string:mainability_description",
-        "label": "AndroidAutoSize",
-        "type": "page",
-        "launchType": "standard"
-      }
-    ]
+    }
   }
 }

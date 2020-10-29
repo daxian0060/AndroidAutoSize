@@ -15,17 +15,17 @@
  */
 package me.jessyan.autosize.demo;
 
-import me.jessyan.autosize.AutoSizeConfig;
-import me.jessyan.autosize.internal.CustomAdapt;
 import ohos.aafwk.ability.Ability;
 import ohos.aafwk.content.Intent;
+import me.jessyan.autosize.demo.ResourceTable;
 import ohos.agp.colors.RgbColor;
 import ohos.agp.components.DirectionalLayout;
 import ohos.agp.components.Text;
 import ohos.agp.components.element.ShapeElement;
 import ohos.agp.utils.Color;
 import ohos.agp.utils.TextAlignment;
-import ohos.global.systemres.ResourceTable;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
 
 /**
  * ================================================
@@ -47,11 +47,13 @@ import ohos.global.systemres.ResourceTable;
 //public class MainActivity extends AppCompatActivity implements CancelAdapt {
 public class MainActivity extends Ability {
 
+    static HiLogLabel label = new HiLogLabel(HiLog.LOG_APP, 0x0, "MYLOG");
+
     @Override
     protected void onStart(Intent intent) {
+        HiLog.info(label, "MainActivity.onStart()");
         super.onStart(intent);
-
-//        super.setUIContent();
+        super.setUIContent(ResourceTable.Layout_ability_main);
     }
 
     /**
