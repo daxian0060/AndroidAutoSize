@@ -22,6 +22,8 @@ import me.jessyan.autosize.internal.CancelAdapt;
 import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.AutoSizeLog;
 import ohos.aafwk.ability.Ability;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
 
 /**
  * ================================================
@@ -35,8 +37,12 @@ import ohos.aafwk.ability.Ability;
  * ================================================
  */
 public class DefaultAutoAdaptStrategy implements AutoAdaptStrategy {
+
+    static HiLogLabel label = new HiLogLabel(HiLog.LOG_APP, 0x0, "MYLOG");
+
     @Override
     public void applyAdapt(Object target, Ability activity) {
+        HiLog.info(label, "DefaultAutoAdaptStrategy.applyAdapt()");
 
         //检查是否开启了外部三方库的适配模式, 只要不主动调用 ExternalAdaptManager 的方法, 下面的代码就不会执行
         if (AutoSizeConfig.getInstance().getExternalAdaptManager().isRun()) {

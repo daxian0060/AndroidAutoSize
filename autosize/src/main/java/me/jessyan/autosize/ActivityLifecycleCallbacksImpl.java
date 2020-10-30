@@ -16,11 +16,13 @@
 package me.jessyan.autosize;
 
 import ohos.aafwk.ability.*;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
 
 /**
  * ================================================
- * {@link ActivityLifecycleCallbacksImpl} 可用来代替在 BaseActivity 中加入适配代码的传统方式
- * {@link ActivityLifecycleCallbacksImpl} 这种方案类似于 AOP, 面向接口, 侵入性低, 方便统一管理, 扩展性强, 并且也支持适配三方库的 {@link Activity}
+ * {@link_TODO ActivityLifecycleCallbacksImpl} 可用来代替在 BaseActivity 中加入适配代码的传统方式
+ * {@link_TODO ActivityLifecycleCallbacksImpl} 这种方案类似于 AOP, 面向接口, 侵入性低, 方便统一管理, 扩展性强, 并且也支持适配三方库的 {@link_TODO Activity}
  * <p>
  * Created by JessYan on 2018/8/8 14:32
  * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
@@ -28,6 +30,8 @@ import ohos.aafwk.ability.*;
  * ================================================
  */
 public class ActivityLifecycleCallbacksImpl implements AbilityLifecycleCallbacks {
+
+    static HiLogLabel label = new HiLogLabel(HiLog.LOG_APP, 0x0, "MYLOG");
     /**
      * 屏幕适配逻辑策略类
      */
@@ -39,6 +43,9 @@ public class ActivityLifecycleCallbacksImpl implements AbilityLifecycleCallbacks
 
     @Override
     public void onAbilityStart(Ability ability) {
+        HiLog.info(label, "ActivityLifecycleCallbacksImpl.onAbilityStart()");
+        HiLog.info(label, "ability"+ability);
+        HiLog.info(label, "mAutoAdaptStrategy"+mAutoAdaptStrategy);
         //Activity 中的 setContentView(View) 一定要在 super.onCreate(Bundle); 之后执行
         if (mAutoAdaptStrategy != null) {
             mAutoAdaptStrategy.applyAdapt(ability, ability);

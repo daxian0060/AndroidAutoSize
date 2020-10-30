@@ -15,9 +15,8 @@
  */
 package me.jessyan.autosize;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+
 import me.jessyan.autosize.external.ExternalAdaptInfo;
 import me.jessyan.autosize.internal.CustomAdapt;
 import me.jessyan.autosize.utils.AutoSizeLog;
@@ -26,9 +25,15 @@ import ohos.aafwk.ability.Ability;
 import ohos.aafwk.ability.AbilityPackage;
 import ohos.aafwk.ability.DataAbilityHelper;
 import ohos.aafwk.ability.DataAbilityRemoteException;
+import ohos.agp.window.service.Display;
 import ohos.agp.window.service.DisplayAttributes;
 import ohos.agp.window.service.DisplayManager;
 import ohos.app.Context;
+import ohos.global.configuration.Configuration;
+import ohos.global.configuration.DeviceCapability;
+import ohos.global.resource.ResourceManager;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
 import ohos.utils.net.Uri;
 
 /**
@@ -46,7 +51,9 @@ import ohos.utils.net.Uri;
  * ================================================
  */
 public final class AutoSize {
-    private static List<DisplayMetricsInfo> mCache = new ArrayList<>();
+
+    static HiLogLabel label = new HiLogLabel(HiLog.LOG_APP, 0x0, "MYLOG");
+    private static Map<Integer, DisplayMetricsInfo> mCache = new HashMap<>();
     private static final int MODE_SHIFT = 30;
     private static final int MODE_MASK  = 0x3 << MODE_SHIFT;
     private static final int MODE_ON_WIDTH  = 1 << MODE_SHIFT;
@@ -170,6 +177,7 @@ public final class AutoSize {
      * @see <a href="https://mp.weixin.qq.com/s/d9QCoBP6kV9VSWvVldVVwA">今日头条官方适配方案</a>
      */
     public static void autoConvertDensity(Ability activity, float sizeInDp, boolean isBaseOnWidth) {
+        HiLog.info(label, "AutoSize.autoConvertDensity()");
         Preconditions.checkNotNull(activity, "activity == null");
         Preconditions.checkMainThread();
 
@@ -183,7 +191,6 @@ public final class AutoSize {
         int key = Math.round((sizeInDp + subunitsDesignSize + screenSize) * AutoSizeConfig.getInstance().getInitScaledDensity()) & ~MODE_MASK;
         key = isBaseOnWidth ? (key | MODE_ON_WIDTH) : (key & ~MODE_ON_WIDTH);
         key = AutoSizeConfig.getInstance().isUseDeviceSize() ? (key | MODE_DEVICE_SIZE) : (key & ~MODE_DEVICE_SIZE);
-
         DisplayMetricsInfo displayMetricsInfo = mCache.get(key);
 
         float targetDensity = 0;
@@ -192,7 +199,6 @@ public final class AutoSize {
         float targetXdpi = 0;
         int targetScreenWidthDp;
         int targetScreenHeightDp;
-
         if (displayMetricsInfo == null) {
             if (isBaseOnWidth) {
                 targetDensity = AutoSizeConfig.getInstance().getScreenWidth() * 1.0f / sizeInDp;
@@ -217,7 +223,7 @@ public final class AutoSize {
                 targetXdpi = AutoSizeConfig.getInstance().getScreenHeight() * 1.0f / subunitsDesignSize;
             }
 
-            mCache.set(key, new DisplayMetricsInfo(targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
+            mCache.put(key, new DisplayMetricsInfo(targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
         } else {
             targetDensity = displayMetricsInfo.getDensity();
             targetDensityDpi = displayMetricsInfo.getDensityDpi();
@@ -226,14 +232,17 @@ public final class AutoSize {
             targetScreenWidthDp = displayMetricsInfo.getScreenWidthDp();
             targetScreenHeightDp = displayMetricsInfo.getScreenHeightDp();
         }
-
-        setDensity(activity, targetDensity, targetDensityDpi, targetScaledDensity, targetXdpi);
+        HiLog.info(label, "targetDensity："+targetDensity);
+        HiLog.info(label, "targetDensityDpi："+targetDensityDpi);
+        HiLog.info(label, "targetScaledDensity："+targetScaledDensity);
+        setDensity(activity, 3.5f, 560, targetScaledDensity, targetXdpi);
 //        setScreenSizeDp(activity, targetScreenWidthDp, targetScreenHeightDp);
 
         AutoSizeLog.d(String.format(Locale.ENGLISH, "The %s has been adapted! \n%s Info: isBaseOnWidth = %s, %s = %f, %s = %f, targetDensity = %f, targetScaledDensity = %f, targetDensityDpi = %d, targetXdpi = %f, targetScreenWidthDp = %d, targetScreenHeightDp = %d"
                 , activity.getClass().getName(), activity.getClass().getSimpleName(), isBaseOnWidth, isBaseOnWidth ? "designWidthInDp"
                         : "designHeightInDp", sizeInDp, isBaseOnWidth ? "designWidthInSubunits" : "designHeightInSubunits", subunitsDesignSize
                 , targetDensity, targetScaledDensity, targetDensityDpi, targetXdpi, targetScreenWidthDp, targetScreenHeightDp));
+        HiLog.info(label, "AutoSize.autoConvertDensity()over");
     }
 
     /**
@@ -287,6 +296,7 @@ public final class AutoSize {
      * @param xdpi          {@link_TODO DisplayMetrics#xdpi}
      */
     private static void setDensity(Ability activity, float density, int densityDpi, float scaledDensity, float xdpi) {
+        HiLog.info(label, "AutoSize.setDensity()1");
         DisplayAttributes activityDisplayMetrics = DisplayManager.getInstance()
                 .getDefaultDisplay(activity.getContext()).get().getAttributes();
         setDensity(activityDisplayMetrics, density, densityDpi, scaledDensity, xdpi);
@@ -294,6 +304,19 @@ public final class AutoSize {
         DisplayAttributes appDisplayMetrics = DisplayManager.getInstance()
                 .getDefaultDisplay(AutoSizeConfig.getInstance().getApplication().getContext()).get().getAttributes();
         setDensity(appDisplayMetrics, density, densityDpi, scaledDensity, xdpi);
+
+        ResourceManager resource = activity.getResourceManager();
+        DeviceCapability cap = resource.getDeviceCapability();
+        cap.screenDensity = 100;
+        Configuration config = resource.getConfiguration();
+        activity.getResourceManager().updateConfiguration(config, cap);
+        Display display = DisplayManager.getInstance()
+                .getDefaultDisplay(activity.getContext()).get();
+        HiLog.info(label, "real density:"+display.getRealAttributes().densityDpi);
+        display.getRealAttributes().densityDpi = 100;
+        display.getRealAttributes().densityPixels = 100;
+        display.getRealAttributes().scalDensity = 100;
+        HiLog.info(label, "density:"+display.getAttributes().densityDpi);
     }
 
     /**
@@ -306,6 +329,10 @@ public final class AutoSize {
      * @param xdpi           {@link_TODO DisplayMetrics#xdpi}
      */
     private static void setDensity(DisplayAttributes displayMetrics, float density, int densityDpi, float scaledDensity, float xdpi) {
+        HiLog.info(label, "AutoSize.setDensity()2"+displayMetrics);
+        displayMetrics.densityPixels = 3.5f;
+        displayMetrics.densityDpi = 560;
+        displayMetrics.xDpi = 560;
         if (AutoSizeConfig.getInstance().getUnitsManager().isSupportDP()) {
             displayMetrics.densityPixels = density;
             displayMetrics.densityDpi = densityDpi;
