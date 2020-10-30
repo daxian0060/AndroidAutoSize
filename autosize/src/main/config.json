@@ -25,17 +25,6 @@
       "deliveryWithInstall": true,
       "moduleName": "autosize",
       "moduleType": "har"
-    },
-    "abilities": [
-      {
-        "name": "me.jessyan.autosize.InitProvider",
-        "type": "data",
-        "uri":  "dataability://me.jessyan.autosize.autosize-init-provider",
-        "visible": false,
-        "permissions": [
-          "me.jessyan.autosize.autosize-init-provider"
-        ]
-      }
-    ]
+    }
   }
 }

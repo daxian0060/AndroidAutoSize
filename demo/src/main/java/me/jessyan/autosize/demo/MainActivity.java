@@ -15,7 +15,9 @@
  */
 package me.jessyan.autosize.demo;
 
+import me.jessyan.autosize.AutoSizeConfig;
 import ohos.aafwk.ability.Ability;
+import ohos.aafwk.ability.AbilityPackage;
 import ohos.aafwk.content.Intent;
 import me.jessyan.autosize.demo.ResourceTable;
 import ohos.agp.colors.RgbColor;
@@ -51,9 +53,13 @@ public class MainActivity extends Ability {
 
     @Override
     protected void onStart(Intent intent) {
-        HiLog.info(label, "MainActivity.onStart()");
+        HiLog.info(label, "MainActivity.onStart()"+getContext());
         super.onStart(intent);
         super.setUIContent(ResourceTable.Layout_ability_main);
+        AutoSizeConfig.getInstance()
+                .setLog(true)
+                .init(getAbilityPackage(getAbilityInfo()))
+                .setUseDeviceSize(false);
     }
 
     /**

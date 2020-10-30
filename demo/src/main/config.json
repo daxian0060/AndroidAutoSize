@@ -14,7 +14,7 @@
   "deviceConfig": {},
   "module": {
     "package": "me.jessyan.autosize.demo",
-    "name": ".demo",
+    "name": ".Demo",
     "reqCapabilities": [
       "video_support"
     ],
@@ -45,17 +45,8 @@
         "description": "$string:mainability_description",
         "label": "demo",
         "type": "page",
-        "launchType": "standard",
-        "reqPermissions": [
-          {
-            "name": "me.jessyan.autosize.autosize-init-provider"
-          }
-        ]
+        "launchType": "standard"
       }
     ]
-  },
-  "defPermissions": [{
-    "name": "me.jessyan.autosize.autosize-init-provider",
-    "grantMode": "system_grant"
-  }]
+  }
 }

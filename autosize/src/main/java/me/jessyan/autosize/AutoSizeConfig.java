@@ -28,6 +28,8 @@ import ohos.aafwk.ability.AbilityPackage;
 import ohos.agp.window.service.DisplayAttributes;
 import ohos.agp.window.service.DisplayManager;
 import ohos.app.Context;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
 
 /**
  * ================================================
@@ -45,6 +47,7 @@ public final class AutoSizeConfig {
     public static final boolean DEPENDENCY_ANDROIDX;
     public static final boolean DEPENDENCY_SUPPORT;
     private AbilityPackage mApplication;
+    static HiLogLabel label = new HiLogLabel(HiLog.LOG_APP, 0x0, "MYLOG");
     /**
      * 用来管理外部三方库 {@link_TODO Activity} 的适配
      */
@@ -143,14 +146,6 @@ public final class AutoSizeConfig {
      */
     private float privateFontScale;
     /**
-     * 是否是 Miui 系统
-     */
-    private boolean isMiui;
-    /**
-     * Miui 系统中的 mTmpMetrics 字段
-     */
-    private Field mTmpMetricsField;
-    /**
      * 屏幕适配监听器，用于监听屏幕适配时的一些事件
      */
     private onAdaptListener mOnAdaptListener;
@@ -196,7 +191,7 @@ public final class AutoSizeConfig {
      *
      * @param application {@link_TODO Application}
      */
-    AutoSizeConfig init(AbilityPackage application) {
+    public AutoSizeConfig init(AbilityPackage application) {
         return init(application, true, null);
     }
 
@@ -220,6 +215,7 @@ public final class AutoSizeConfig {
      * @param strategy      {@link_TODO AutoAdaptStrategy}, 传 {@code null} 则使用 {@link_TODO DefaultAutoAdaptStrategy}
      */
     AutoSizeConfig init(final AbilityPackage application, boolean isBaseOnWidth, AutoAdaptStrategy strategy) {
+        HiLog.info(label, "AutoSizeConfig.init()"+application);
         Preconditions.checkArgument(mInitDensity == -1, "AutoSizeConfig#init() can only be called once");
         Preconditions.checkNotNull(application, "application == null");
         this.mApplication = application;
@@ -535,24 +531,6 @@ public final class AutoSizeConfig {
      */
     public boolean isVertical() {
         return isVertical;
-    }
-
-    /**
-     * 返回 {@link_TODO #isMiui}
-     *
-     * @return {@link_TODO #isMiui}
-     */
-    public boolean isMiui() {
-        return isMiui;
-    }
-
-    /**
-     * 返回 {@link_TODO #mTmpMetricsField}
-     *
-     * @return {@link_TODO #mTmpMetricsField}
-     */
-    public Field getTmpMetricsField() {
-        return mTmpMetricsField;
     }
 
     /**
